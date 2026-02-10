@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Quantix.API/Quantix.API.csproj" />
+    <Project Path="src/Quantix.Core/Quantix.Core.csproj" />
+    <Project Path="src/Quantix.Data/Quantix.Data.csproj" />
+    <Project Path="src/Quantix.Service/Quantix.Service.csproj" />
+  </Folder>
+</Solution>

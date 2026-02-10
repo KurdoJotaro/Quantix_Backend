@@ -1,0 +1,12 @@
+  Geri y├╝klenecek projeler belirleniyor...
+  Geri y├╝kleme i├ğin t├╝m projeler g├╝ncel.
+  Quantix.Core -> C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Core\bin\Debug\net9.0\Quantix.Core.dll
+  Quantix.Data -> C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Data\bin\Debug\net9.0\Quantix.Data.dll
+  Quantix.Service -> C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\bin\Debug\net9.0\Quantix.Service.dll
+  Quantix.API -> C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.API\bin\Debug\net9.0\Quantix.API.dll
+
+Olu┼şturma ba┼şar─▒l─▒ oldu.
+    0 Uyar─▒
+    0 Hata
+
+Ge├ğen S├╝re 00:00:02.24

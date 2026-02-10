@@ -1,0 +1,15 @@
+# Environment
+.env
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# IDE
+.vs/
+.vscode/
+*.sln.docstates

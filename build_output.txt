@@ -1,0 +1,17 @@
+  Quantix.Core -> C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Core\bin\Debug\net9.0\Quantix.Core.dll
+  Quantix.Data -> C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Data\bin\Debug\net9.0\Quantix.Data.dll
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\TokenService.cs(1,14): error CS0234: 'IdentityModel' t├╝r veya ad alan─▒ ad─▒ 'System' ad alan─▒nda yok (bir derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\TokenService.cs(5,17): error CS0234: 'IdentityModel' t├╝r veya ad alan─▒ ad─▒ 'Microsoft' ad alan─▒nda yok (bir derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\AuthService.cs(13,22): error CS0246: 'SignInManager<>' t├╝r├╝ veya ad alan─▒ ad─▒ bulunamad─▒ (bir using y├Ânergeniz veya derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\AuthService.cs(20,9): error CS0246: 'SignInManager<>' t├╝r├╝ veya ad alan─▒ ad─▒ bulunamad─▒ (bir using y├Ânergeniz veya derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+
+Olu┼şturma BA┼ŞARISIZ OLDU.
+
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\TokenService.cs(1,14): error CS0234: 'IdentityModel' t├╝r veya ad alan─▒ ad─▒ 'System' ad alan─▒nda yok (bir derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\TokenService.cs(5,17): error CS0234: 'IdentityModel' t├╝r veya ad alan─▒ ad─▒ 'Microsoft' ad alan─▒nda yok (bir derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\AuthService.cs(13,22): error CS0246: 'SignInManager<>' t├╝r├╝ veya ad alan─▒ ad─▒ bulunamad─▒ (bir using y├Ânergeniz veya derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\AuthService.cs(20,9): error CS0246: 'SignInManager<>' t├╝r├╝ veya ad alan─▒ ad─▒ bulunamad─▒ (bir using y├Ânergeniz veya derleme ba┼şvurunuz mu eksik?) [C:\Users\Abdii\Desktop\QUANTIX\src\Quantix.Service\Quantix.Service.csproj]
+    0 Uyar─▒
+    4 Hata
+
+Ge├ğen S├╝re 00:00:00.51
