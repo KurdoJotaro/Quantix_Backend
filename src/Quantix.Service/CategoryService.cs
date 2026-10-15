@@ -14,29 +14,32 @@ public class CategoryService : ICategoryService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ApiResponse<IEnumerable<CategoryDto>>> GetAllAsync()
+    public async Task<ApiResponse<IEnumerable<CategoryDto>>> GetAllAsync(string userId, bool isAdmin = false)
     {
         var categories = await _unitOfWork.Categories
-            .Where(_ => true)
+            .Where(category => category.AppUserId == userId || category.AppUserId == null)
             .Select(c => new CategoryDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 Type = c.Type,
-                IconCode = c.IconCode
+                IconCode = c.IconCode,
+                CanManage = c.AppUserId == userId || (isAdmin && c.AppUserId == null),
+                IsShared = c.AppUserId == null
             })
             .ToListAsync();
 
         return ApiResponse<IEnumerable<CategoryDto>>.SuccessResult(categories);
     }
 
-    public async Task<ApiResponse<CategoryDto>> CreateAsync(CreateCategoryDto dto)
+    public async Task<ApiResponse<CategoryDto>> CreateAsync(CreateCategoryDto dto, string userId)
     {
         var entity = new Category
         {
             Name = dto.Name,
             Type = dto.Type,
-            IconCode = dto.IconCode
+            IconCode = dto.IconCode,
+            AppUserId = userId
         };
 
         await _unitOfWork.Categories.AddAsync(entity);
@@ -47,16 +50,18 @@ public class CategoryService : ICategoryService
             Id = entity.Id,
             Name = entity.Name,
             Type = entity.Type,
-            IconCode = entity.IconCode
+            IconCode = entity.IconCode,
+            CanManage = true,
+            IsShared = false
         };
 
         return ApiResponse<CategoryDto>.SuccessResult(result, "Kategori oluşturuldu.");
     }
 
-    public async Task<ApiResponse<string>> DeleteAsync(int id)
+    public async Task<ApiResponse<string>> DeleteAsync(int id, string userId, bool isAdmin = false)
     {
         var entity = await _unitOfWork.Categories.GetByIdAsync(id);
-        if (entity == null)
+        if (entity == null || (entity.AppUserId != userId && !(isAdmin && entity.AppUserId == null)))
             return ApiResponse<string>.FailResult("Kategori bulunamadı.");
 
         if (await _unitOfWork.Transactions.Where(transaction => transaction.CategoryId == id)

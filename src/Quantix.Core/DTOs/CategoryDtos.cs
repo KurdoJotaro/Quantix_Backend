@@ -9,6 +9,8 @@ public class CategoryDto
     public string Name { get; set; } = string.Empty;
     public CategoryType Type { get; set; }
     public string? IconCode { get; set; }
+    public bool CanManage { get; set; }
+    public bool IsShared { get; set; }
 }
 
 public class CreateCategoryDto

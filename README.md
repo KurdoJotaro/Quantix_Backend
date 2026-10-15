@@ -65,9 +65,11 @@ Quantix/
 
 | Method | Endpoint | Açıklama | Yetki |
 |--------|----------|----------|-------|
-| `GET` | `/` | Tüm kategorileri listele | Herkes |
-| `POST` | `/` | Yeni kategori oluştur | Admin |
-| `DELETE` | `/{id}` | Kategoriyi sil | Admin |
+| `GET` | `/` | Kendi kategorilerini ve eski ortak kategorileri listele | Giriş yapan kullanıcı |
+| `POST` | `/` | Kullanıcıya özel kategori oluştur | Giriş yapan kullanıcı |
+| `DELETE` | `/{id}` | Kendi kategorisini sil; eski ortak kategorileri yalnız admin silebilir | Kategori sahibi / ortak kategori için admin |
+
+Yeni kategorinin sahibi token'daki kullanıcı kimliğinden atanır; istemci sahip kimliği göndermez. Adminin oluşturduğu kategori de kendisine özeldir. Başka bir kullanıcının özel kategorileri admin dahil diğer kullanıcılara listelenmez ve onların işlemlerinde kullanılamaz. Kategori yanıtındaki `canManage`, kullanıcının o kategori üzerinde silme yetkisi olduğunu; `isShared` ise önceki sürümden kalan ortak kategori olduğunu belirtir. İşlem geçmişinde kullanılmış kategoriler, silinmiş işlemler dahil, silinemez.
 
 ### Users (`/api/users`) — `[Authorize(Roles = "Admin")]`
 
@@ -163,7 +165,7 @@ JWT token ile korunan endpointleri test etmek için Swagger'daki kilit ikonuna t
 
 İlk çalıştırmada `Admin` ve `User` rolleri oluşturulur. Admin hesabı yalnızca `.env` dosyasındaki `Seed__AdminEmail` ve `Seed__AdminPassword` birlikte doldurulduğunda oluşturulur. Hazır bir admin parolası yoktur. Parola en az 6 karakter ve büyük/küçük harf, rakam ve özel karakter içermelidir.
 
-Kategoriler hazır gelmez; admin hesabıyla `/api/categories` üzerinden eklenir. `type: 0` gelir, `type: 1` gider anlamındadır. Her işlemde tutar pozitiftir ve en fazla iki ondalık basamak içerir; gelir/gider ayrımı işlem yanıtındaki `categoryType` ile yapılır. Geçmiş işlemlerde kullanılan kategoriler silinemez.
+Kategoriler hazır gelmez; giriş yapan her kullanıcı `/api/categories` üzerinden kendi özel kategorilerini ekleyebilir. `type: 0` gelir, `type: 1` gider anlamındadır. Her işlemde tutar pozitiftir ve en fazla iki ondalık basamak içerir; gelir/gider ayrımı işlem yanıtındaki `categoryType` ile yapılır. Önceki sürümde oluşturulmuş kategoriler sahip kimliği boş bırakılarak ortak tutulur; mevcut kayıtlar ve işlem geçmişi korunur. Sahiplik migration'ı yalnız nullable `AppUserId` sütunu, indeks ve ilişki ekler.
 
 Önceki sürümle oluşturulmuş bir veritabanındaki hesaplar ve parolalar kendiliğinden değişmez. Daha önce varsayılan admin hesabı oluşturulduysa parolasını ayrıca değiştirin.
 

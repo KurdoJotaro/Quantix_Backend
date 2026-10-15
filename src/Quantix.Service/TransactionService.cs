@@ -63,7 +63,7 @@ public class TransactionService : ITransactionService
     public async Task<ApiResponse<TransactionDto>> CreateAsync(CreateTransactionDto dto, string userId)
     {
         var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId);
-        if (category == null)
+        if (category == null || (category.AppUserId != null && category.AppUserId != userId))
             return ApiResponse<TransactionDto>.FailResult("Kategori bulunamadı.");
 
         var entity = new Transaction
@@ -103,7 +103,7 @@ public class TransactionService : ITransactionService
             return ApiResponse<TransactionDto>.FailResult("İşlem bulunamadı.");
 
         var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId);
-        if (category == null)
+        if (category == null || (category.AppUserId != null && category.AppUserId != userId))
             return ApiResponse<TransactionDto>.FailResult("Kategori bulunamadı.");
 
         entity.Amount = dto.Amount;

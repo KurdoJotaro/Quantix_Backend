@@ -146,7 +146,7 @@ public class TransactionTests
     {
         using var database = new TestDatabase();
         await database.AddUserAsync("owner");
-        var category = new Category { Name = "History", Type = CategoryType.Expense };
+        var category = new Category { Name = "History", Type = CategoryType.Expense, AppUserId = "owner" };
         var transaction = new Transaction
         {
             AppUserId = "owner", Category = category, Amount = 10, Date = DateTime.UtcNow, IsDeleted = deletedTransaction
@@ -155,7 +155,7 @@ public class TransactionTests
         await database.Context.SaveChangesAsync();
         var service = new CategoryService(new UnitOfWork(database.Context));
 
-        var response = await service.DeleteAsync(category.Id);
+        var response = await service.DeleteAsync(category.Id, "owner");
 
         Assert.False(response.Success);
         Assert.False(category.IsDeleted);

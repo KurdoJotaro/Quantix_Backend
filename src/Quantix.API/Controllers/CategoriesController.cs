@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quantix.Core.DTOs;
@@ -17,28 +18,27 @@ public class CategoriesController : ControllerBase
         _categoryService = categoryService;
     }
 
+    private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var result = await _categoryService.GetAllAsync();
+        var result = await _categoryService.GetAllAsync(GetUserId(), User.IsInRole("Admin"));
         return Ok(result);
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
     {
-        var result = await _categoryService.CreateAsync(dto);
+        var result = await _categoryService.CreateAsync(dto, GetUserId());
         return result.Success ? CreatedAtAction(nameof(GetAll), result) : BadRequest(result);
     }
 
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var result = await _categoryService.DeleteAsync(id);
+        var result = await _categoryService.DeleteAsync(id, GetUserId(), User.IsInRole("Admin"));
         return result.Success ? Ok(result) : NotFound(result);
     }
 }

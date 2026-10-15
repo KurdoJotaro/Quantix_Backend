@@ -34,6 +34,10 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, string>
         {
             e.HasKey(c => c.Id);
             e.Property(c => c.Name).HasMaxLength(100).IsRequired();
+            e.HasOne(c => c.AppUser)
+             .WithMany()
+             .HasForeignKey(c => c.AppUserId)
+             .OnDelete(DeleteBehavior.Restrict);
             e.HasQueryFilter(c => !c.IsDeleted);
         });
     }
