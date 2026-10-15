@@ -11,12 +11,13 @@ public class TransactionDto
     public DateTime Date { get; set; }
     public int CategoryId { get; set; }
     public string? CategoryName { get; set; }
+    public CategoryType CategoryType { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
-public class CreateTransactionDto
+public class CreateTransactionDto : IValidatableObject
 {
-    [Required]
+    [Range(typeof(decimal), "0.01", "9999999999999999.99", ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)]
     public decimal Amount { get; set; }
 
     public string? Description { get; set; }
@@ -24,20 +25,19 @@ public class CreateTransactionDto
     [Required]
     public DateTime Date { get; set; }
 
-    [Required]
+    [Range(1, int.MaxValue)]
     public int CategoryId { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Amount != decimal.Round(Amount, 2))
+            yield return new ValidationResult("Tutar en fazla iki ondalık basamak içerebilir.", new[] { nameof(Amount) });
+
+        if (Date == default)
+            yield return new ValidationResult("İşlem tarihi zorunludur.", new[] { nameof(Date) });
+    }
 }
 
-public class UpdateTransactionDto
+public class UpdateTransactionDto : CreateTransactionDto
 {
-    [Required]
-    public decimal Amount { get; set; }
-
-    public string? Description { get; set; }
-
-    [Required]
-    public DateTime Date { get; set; }
-
-    [Required]
-    public int CategoryId { get; set; }
 }

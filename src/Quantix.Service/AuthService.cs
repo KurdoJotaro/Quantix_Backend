@@ -50,22 +50,38 @@ public class AuthService : IAuthService
             return ApiResponse<string>.FailResult(errors);
         }
 
-        await _userManager.AddToRoleAsync(user, "User");
+        var roleResult = await _userManager.AddToRoleAsync(user, "User");
+        if (!roleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            return ApiResponse<string>.FailResult("Kullanıcı rolü atanamadı. Lütfen tekrar deneyin.");
+        }
 
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var encodedToken = HttpUtility.UrlEncode(token);
 
-        var baseUrl = _configuration["App:BaseUrl"] ?? "https://localhost:5001";
-        var verifyUrl = $"{baseUrl}/api/auth/verify-email?userId={user.Id}&token={encodedToken}";
+        var frontendUrl = _configuration["App:FrontendUrl"] ?? "http://localhost:3000";
+        var verifyUrl = $"{frontendUrl.TrimEnd('/')}/verify-email?userId={user.Id}&token={encodedToken}";
 
         var emailBody = $@"
             <h2>Quantix – E-Posta Doğrulama</h2>
-            <p>Merhaba {user.FullName},</p>
+            <p>Merhaba {HttpUtility.HtmlEncode(user.FullName)},</p>
             <p>Hesabınızı doğrulamak için aşağıdaki bağlantıya tıklayın:</p>
             <a href='{verifyUrl}'>E-Postamı Doğrula</a>
             <p>Bu bağlantı güvenlik amacıyla oluşturulmuştur.</p>";
 
-        await _emailService.SendEmailAsync(user.Email!, "Quantix – E-Posta Doğrulama", emailBody);
+        try
+        {
+            await _emailService.SendEmailAsync(user.Email!, "Quantix – E-Posta Doğrulama", emailBody);
+        }
+        catch
+        {
+            var deleteResult = await _userManager.DeleteAsync(user);
+            if (!deleteResult.Succeeded)
+                throw new InvalidOperationException("Doğrulama e-postası gönderilemedi ve tamamlanmamış kayıt silinemedi.");
+
+            return ApiResponse<string>.FailResult("Doğrulama e-postası gönderilemedi. Lütfen daha sonra tekrar kayıt olun.");
+        }
 
         return ApiResponse<string>.SuccessResult(
             "Kayıt başarılı! Lütfen e-posta adresinizi doğrulayın.",

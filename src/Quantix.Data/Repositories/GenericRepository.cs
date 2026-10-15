@@ -17,7 +17,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     }
 
     public async Task<T?> GetByIdAsync(int id)
-        => await _dbSet.FindAsync(id);
+        => await _dbSet.FirstOrDefaultAsync(entity => entity.Id == id);
 
     public async Task<IEnumerable<T>> GetAllAsync()
         => await _dbSet.ToListAsync();

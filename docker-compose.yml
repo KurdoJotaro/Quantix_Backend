@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: quantix-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: QuantixRoot123!
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
       MYSQL_DATABASE: QuantixDb
     ports:
       - "3306:3306"
@@ -22,13 +20,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: quantix-api
+    env_file:
+      - .env
     ports:
       - "5000:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=QuantixDb;User=root;Password=QuantixRoot123!;
-      - Jwt__SecurityKey=QuantixSuperSecretKey2024!@#$$%^&*()_+ABCDEF1234567890LONG
-      - Jwt__Issuer=QuantixAPI
-      - Jwt__Audience=QuantixClient
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=QuantixDb;User=root;Password=${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env};
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       mysql:

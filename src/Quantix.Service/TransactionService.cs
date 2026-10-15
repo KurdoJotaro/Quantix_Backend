@@ -28,6 +28,7 @@ public class TransactionService : ITransactionService
                 Date = t.Date,
                 CategoryId = t.CategoryId,
                 CategoryName = t.Category.Name,
+                CategoryType = t.Category.Type,
                 CreatedAt = t.CreatedAt
             })
             .ToListAsync();
@@ -48,6 +49,7 @@ public class TransactionService : ITransactionService
                 Date = t.Date,
                 CategoryId = t.CategoryId,
                 CategoryName = t.Category.Name,
+                CategoryType = t.Category.Type,
                 CreatedAt = t.CreatedAt
             })
             .FirstOrDefaultAsync();
@@ -84,6 +86,7 @@ public class TransactionService : ITransactionService
             Date = entity.Date,
             CategoryId = entity.CategoryId,
             CategoryName = category.Name,
+            CategoryType = category.Type,
             CreatedAt = entity.CreatedAt
         };
 
@@ -99,6 +102,10 @@ public class TransactionService : ITransactionService
         if (entity == null)
             return ApiResponse<TransactionDto>.FailResult("İşlem bulunamadı.");
 
+        var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId);
+        if (category == null)
+            return ApiResponse<TransactionDto>.FailResult("Kategori bulunamadı.");
+
         entity.Amount = dto.Amount;
         entity.Description = dto.Description;
         entity.Date = dto.Date;
@@ -107,8 +114,6 @@ public class TransactionService : ITransactionService
         _unitOfWork.Transactions.Update(entity);
         await _unitOfWork.SaveChangesAsync();
 
-        var category = await _unitOfWork.Categories.GetByIdAsync(entity.CategoryId);
-
         var result = new TransactionDto
         {
             Id = entity.Id,
@@ -116,7 +121,8 @@ public class TransactionService : ITransactionService
             Description = entity.Description,
             Date = entity.Date,
             CategoryId = entity.CategoryId,
-            CategoryName = category?.Name,
+            CategoryName = category.Name,
+            CategoryType = category.Type,
             CreatedAt = entity.CreatedAt
         };
 

@@ -45,7 +45,9 @@ public class UsersController : ControllerBase
             return NotFound(ApiResponse<string>.FailResult("Kullanıcı bulunamadı."));
 
         user.IsBanned = !user.IsBanned;
-        await _userManager.UpdateAsync(user);
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return BadRequest(ApiResponse<string>.FailResult(result.Errors.Select(error => error.Description).ToList()));
 
         var status = user.IsBanned ? "engellendi" : "engeli kaldırıldı";
         return Ok(ApiResponse<string>.SuccessResult($"Kullanıcı {status}."));

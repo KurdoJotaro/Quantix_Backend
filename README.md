@@ -2,7 +2,7 @@
 
 **Personal Finance Tracker** — Gelir ve giderlerini tek bir yerden takip et.
 
-Quantix, .NET 8 ile geliştirilmiş, güvenliği merkeze alan bir kişisel finans takip API'sidir. JWT tabanlı kimlik doğrulama, rol bazlı yetkilendirme, e-posta doğrulama ve Docker desteği ile gelir.
+Quantix, .NET 9 ile geliştirilmiş bir kişisel finans takip API'sidir. JWT tabanlı kimlik doğrulama, rol bazlı yetkilendirme, e-posta doğrulama ve Docker desteği ile gelir.
 
 ---
 
@@ -10,7 +10,7 @@ Quantix, .NET 8 ile geliştirilmiş, güvenliği merkeze alan bir kişisel finan
 
 | Katman | Teknoloji |
 |--------|-----------|
-| Runtime | .NET 8 / ASP.NET Core |
+| Runtime | .NET 9 / ASP.NET Core |
 | ORM | Entity Framework Core |
 | Veritabanı | MySQL 8.0 |
 | Kimlik | ASP.NET Core Identity |
@@ -82,7 +82,7 @@ Quantix/
 
 ### Gereksinimler
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (veya daha yeni uyumlu SDK ve .NET 9 runtime)
 - [MySQL 8.0](https://dev.mysql.com/downloads/) (veya Docker)
 - [Docker](https://www.docker.com/) (opsiyonel)
 
@@ -103,6 +103,7 @@ cp .env.example .env
 
 ```env
 # Veritabanı
+MYSQL_ROOT_PASSWORD=GUCLU_VERITABANI_SIFREN
 ConnectionStrings__DefaultConnection=Server=localhost;Port=3306;Database=quantixdb;User=root;Password=SIFREN;
 
 # JWT
@@ -120,6 +121,12 @@ Email__FromName=Quantix
 
 # Uygulama
 App__BaseUrl=http://localhost:5000
+App__FrontendUrl=http://localhost:3000
+Cors__AllowedOrigins__0=http://localhost:3000
+
+# İsteğe bağlı admin hesabı: ikisini birlikte doldur
+Seed__AdminEmail=
+Seed__AdminPassword=
 ```
 
 ### 3. Çalıştır
@@ -133,7 +140,7 @@ dotnet run --project src/Quantix.API
 #### Docker Compose
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Bu komut MySQL ve API container'larını ayağa kaldırır. API `http://localhost:5000` üzerinden erişilebilir olur.
@@ -152,15 +159,27 @@ JWT token ile korunan endpointleri test etmek için Swagger'daki kilit ikonuna t
 
 ---
 
-## Varsayılan Seed Verileri
+## Başlangıç Verileri
 
-İlk çalıştırmada otomatik olarak oluşturulur:
+İlk çalıştırmada `Admin` ve `User` rolleri oluşturulur. Admin hesabı yalnızca `.env` dosyasındaki `Seed__AdminEmail` ve `Seed__AdminPassword` birlikte doldurulduğunda oluşturulur. Hazır bir admin parolası yoktur. Parola en az 6 karakter ve büyük/küçük harf, rakam ve özel karakter içermelidir.
 
-| | Değer |
-|---|---|
-| **Admin E-posta** | `admin@quantix.com` |
-| **Admin Şifre** | `Admin123!` |
-| **Roller** | `Admin`, `User` |
+Kategoriler hazır gelmez; admin hesabıyla `/api/categories` üzerinden eklenir. `type: 0` gelir, `type: 1` gider anlamındadır. Her işlemde tutar pozitiftir ve en fazla iki ondalık basamak içerir; gelir/gider ayrımı işlem yanıtındaki `categoryType` ile yapılır. Geçmiş işlemlerde kullanılan kategoriler silinemez.
+
+Önceki sürümle oluşturulmuş bir veritabanındaki hesaplar ve parolalar kendiliğinden değişmez. Daha önce varsayılan admin hesabı oluşturulduysa parolasını ayrıca değiştirin.
+
+SMTP bilgileri gerçek bir posta sunucusuna ait olmalıdır. Doğrulama e-postası gönderilemezse kayıt tamamlanmaz; ayarları düzelttikten sonra yeniden kayıt olun. E-postadaki bağlantı `App__FrontendUrl` altındaki `/verify-email` sayfasına gider; frontend bu sayfada API'nin `/api/auth/verify-email` endpointini çağırır.
+
+## Doğrulama
+
+```bash
+dotnet restore Quantix.slnx
+dotnet build Quantix.slnx --no-restore
+dotnet test Quantix.slnx --no-build
+```
+
+Testler her test için bellekte geçici SQLite veritabanı oluşturur; MySQL veya SMTP bağlantısı gerektirmez. Kullanıcılar arası veri izolasyonu, kategori geçmişinin korunması, tutar doğrulaması, engellenen kullanıcıların token reddi, e-posta hatasında kayıt geri alma ve hata yanıtlarının bilgi sızdırmaması kontrol edilir. Gerçek MySQL migration ve SMTP teslimatı ayrıca uçtan uca doğrulanmalıdır.
+
+Migration araçlarını kullanmak için proje kökünde `dotnet tool restore` çalıştırın; yerel `dotnet-ef` manifesti `.config/dotnet-tools.json` içindedir ve EF Core 9 ile aynı sürümü kullanır.
 
 ---
 
@@ -171,8 +190,9 @@ JWT token ile korunan endpointleri test etmek için Swagger'daki kilit ikonuna t
 - Parola politikası: en az 6 karakter, büyük/küçük harf, rakam ve özel karakter zorunlu
 - Kullanıcılar yalnızca kendi verilerine erişebilir
 - Admin paneli rol bazlı yetkilendirme ile korunur
-- Başarısız giriş denemeleri Serilog ile loglanır
+- İstek hataları Serilog ile loglanır; ham exception ayrıntıları istemciye gönderilmez
 - E-posta doğrulanmadan giriş yapılamaz
+- Hesabı engellenen veya silinen kullanıcıların mevcut JWT token'ları da reddedilir
 
 ---
 

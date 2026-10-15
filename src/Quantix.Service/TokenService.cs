@@ -35,7 +35,7 @@ public class TokenService : ITokenService
             Encoding.UTF8.GetBytes(_configuration["Jwt:SecurityKey"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiration = DateTime.UtcNow.AddMinutes(
-            double.Parse(_configuration["Jwt:ExpirationMinutes"] ?? "60"));
+            _configuration.GetValue<int>("Jwt:ExpirationMinutes", 60));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],

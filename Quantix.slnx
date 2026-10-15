@@ -5,4 +5,7 @@
     <Project Path="src/Quantix.Data/Quantix.Data.csproj" />
     <Project Path="src/Quantix.Service/Quantix.Service.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Quantix.Tests/Quantix.Tests.csproj" />
+  </Folder>
 </Solution>

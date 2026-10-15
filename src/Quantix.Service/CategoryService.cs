@@ -59,6 +59,10 @@ public class CategoryService : ICategoryService
         if (entity == null)
             return ApiResponse<string>.FailResult("Kategori bulunamadı.");
 
+        if (await _unitOfWork.Transactions.Where(transaction => transaction.CategoryId == id)
+            .IgnoreQueryFilters().AnyAsync())
+            return ApiResponse<string>.FailResult("İşlemlerde kullanılan kategori silinemez.");
+
         _unitOfWork.Categories.Remove(entity);
         await _unitOfWork.SaveChangesAsync();
 

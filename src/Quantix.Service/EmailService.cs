@@ -34,7 +34,7 @@ public class EmailService : IEmailService
                 EnableSsl = true
             };
 
-            var message = new MailMessage
+            using var message = new MailMessage
             {
                 From = new MailAddress(fromEmail, fromName),
                 Subject = subject,
@@ -49,6 +49,7 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send email to {To}", to);
+            throw;
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Quantix.API.Middleware;
+using Quantix.API.Authentication;
 using Quantix.Core.Entities;
 using Quantix.Core.Interfaces;
 using Quantix.Data;
@@ -32,6 +33,9 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+    throw new InvalidOperationException("ConnectionStrings:DefaultConnection yapılandırılmalıdır.");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -49,7 +53,17 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 .AddDefaultTokenProviders();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["SecurityKey"]!);
+var securityKey = jwtSettings["SecurityKey"];
+if (string.IsNullOrWhiteSpace(securityKey) || Encoding.UTF8.GetByteCount(securityKey) < 32)
+    throw new InvalidOperationException("Jwt:SecurityKey en az 32 bayt uzunluğunda yapılandırılmalıdır.");
+
+if (string.IsNullOrWhiteSpace(jwtSettings["Issuer"]) || string.IsNullOrWhiteSpace(jwtSettings["Audience"]))
+    throw new InvalidOperationException("Jwt:Issuer ve Jwt:Audience yapılandırılmalıdır.");
+
+if (jwtSettings.GetValue<int>("ExpirationMinutes", 60) <= 0)
+    throw new InvalidOperationException("Jwt:ExpirationMinutes sıfırdan büyük olmalıdır.");
+
+var key = Encoding.UTF8.GetBytes(securityKey);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -69,7 +83,16 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ClockSkew = TimeSpan.Zero
     };
+    options.EventsType = typeof(ActiveUserJwtEvents);
 });
+builder.Services.AddScoped<ActiveUserJwtEvents>();
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? (builder.Environment.IsDevelopment()
+        ? new[] { "http://localhost:3000", "http://127.0.0.1:3000" }
+        : Array.Empty<string>());
+builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
+    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -135,6 +158,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Quantix API v1"));
 }
 
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -1,5 +1,5 @@
 using System.Net;
-using System.Text.Json;
+using Quantix.Core.DTOs;
 
 namespace Quantix.API.Middleware;
 
@@ -20,30 +20,19 @@ public class ExceptionHandlerMiddleware
         {
             await _next(context);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!context.Response.HasStarted)
         {
             _logger.LogError(ex, "Unhandled exception occurred");
-            await HandleExceptionAsync(context, ex);
+            await HandleExceptionAsync(context);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var response = new
-        {
-            success = false,
-            message = "Sunucu hatası oluştu.",
-            detail = exception.Message
-        };
-
-        var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-
-        await context.Response.WriteAsync(json);
+        await context.Response.WriteAsJsonAsync(
+            ApiResponse<object>.FailResult("Sunucu hatası oluştu."));
     }
 }
